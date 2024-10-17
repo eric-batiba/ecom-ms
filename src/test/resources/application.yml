@@ -1,0 +1,16 @@
+eureka:
+  server:
+    enabled: false
+spring:
+  application:
+    name: product-service-test
+  main:
+    banner-mode: "off"
+  cloud:
+    discovery:
+      enabled: false
+    config:
+      enabled: false
+#  config:
+#    import: optional:configserver:http//localhost:8888
+
