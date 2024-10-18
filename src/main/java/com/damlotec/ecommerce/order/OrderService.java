@@ -8,6 +8,8 @@ import com.damlotec.ecommerce.kafka.OrderConfirmation;
 import com.damlotec.ecommerce.kafka.OrderProducer;
 import com.damlotec.ecommerce.orderline.OrderLineRequest;
 import com.damlotec.ecommerce.orderline.OrderLineService;
+import com.damlotec.ecommerce.payment.PaymentClient;
+import com.damlotec.ecommerce.payment.PaymentRequest;
 import com.damlotec.ecommerce.product.ProductClient;
 import com.damlotec.ecommerce.product.ProductPurchaseRequest;
 import com.damlotec.ecommerce.product.ProductPurchaseResponse;
@@ -27,6 +29,7 @@ public class OrderService implements IorderService {
     private final OrderRepository orderRepository;
     private final CustomerClient customerClient;
     private final ProductClient productClient;
+    private final PaymentClient paymentClient;
     private final OrderLineService orderLineService;
     private final OrderProducer orderProducer;
     private final OrderMapper mapper;
@@ -42,26 +45,32 @@ public class OrderService implements IorderService {
         //productClient.productsPurchase(orderRequest.products()); // --> with OpenFeign
         List<ProductPurchaseResponse> purchaseProducts = productClient.getPurchaseProducts(orderRequest.products());// --> with RestTemplate
 
-        //save order
-        Order order = mapper.toOrder(orderRequest);
-//        order.setId(2);
-        Order orderSaved = orderRepository.save(order);
+        Order order = orderRepository.save(mapper.toOrder(orderRequest));
 
         //save orderItems
         for (ProductPurchaseRequest productPurchaseRequest : orderRequest.products()) {
             orderLineService.saveOrderLine(
                     new OrderLineRequest(
-                            orderSaved.getId(),
+                            order.getId(),
                             productPurchaseRequest.productId(),
                             productPurchaseRequest.quantity()
                     )
             );
         }
 
-//        TODO start the payment process --> payment-ms
+        //start the payment process --> payment-ms
+        paymentClient.pay(
+                new PaymentRequest(
+                        orderRequest.amount(),
+                        orderRequest.paymentMethod(),
+                        order.getId(),
+                        orderRequest.reference(),
+                        customerResponse
+                )
+        );
 
         //send order-confirmation into kafka --> notification-ms
-            orderProducer.sendOrderConfirmation(
+        orderProducer.sendOrderConfirmation(
                 new OrderConfirmation(
                         order.getId(),
                         orderRequest.reference(),
