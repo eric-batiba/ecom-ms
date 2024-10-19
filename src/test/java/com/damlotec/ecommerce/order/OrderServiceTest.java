@@ -8,6 +8,8 @@ import com.damlotec.ecommerce.kafka.OrderConfirmation;
 import com.damlotec.ecommerce.kafka.OrderProducer;
 import com.damlotec.ecommerce.orderline.OrderLineRequest;
 import com.damlotec.ecommerce.orderline.OrderLineService;
+import com.damlotec.ecommerce.payment.PaymentClient;
+import com.damlotec.ecommerce.payment.PaymentRequest;
 import com.damlotec.ecommerce.product.ProductClient;
 import com.damlotec.ecommerce.product.ProductPurchaseRequest;
 import com.damlotec.ecommerce.product.ProductPurchaseResponse;
@@ -48,6 +50,8 @@ class OrderServiceTest {
     @Mock
     private ProductClient productClient;
     @Mock
+    private PaymentClient paymentClient;
+    @Mock
     private OrderLineService orderLineService;
     @Mock
     private OrderProducer orderProducer;
@@ -87,10 +91,12 @@ class OrderServiceTest {
     void shouldCreateOrder() {
         //given
         List<ProductPurchaseResponse> productPurchaseResponses = List.of(new ProductPurchaseResponse(1, "product-1", "product-1", new BigDecimal(100), 5));
+        PaymentRequest paymentRequest = new PaymentRequest(new BigDecimal(100), PaymentMethod.CREDIT_CARD, 1, "order-ref", customerResponse);
         Order order = Order.builder().id(1).build();
         //when
         when(customerClient.getCustomerById(anyString())).thenReturn(Optional.of(customerResponse));
         when(productClient.getPurchaseProducts(anyList())).thenReturn(productPurchaseResponses);
+        when(paymentClient.pay(paymentRequest)).thenReturn(1);
         when(mapper.toOrder(orderRequest)).thenReturn(order);
         when(orderRepository.save(any(Order.class))).thenReturn(order);
 
