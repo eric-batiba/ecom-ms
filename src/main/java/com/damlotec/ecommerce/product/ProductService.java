@@ -1,9 +1,9 @@
 package com.damlotec.ecommerce.product;
 
 import com.damlotec.ecommerce.exceptions.CategoryNotFoundException;
-import com.damlotec.ecommerce.exceptions.InsufficientQuanityException;
+import com.damlotec.ecommerce.exceptions.InsufficientQuantityException;
 import com.damlotec.ecommerce.exceptions.ProductPurchaseException;
-import com.damlotec.ecommerce.exceptions.ProuctNotFoundException;
+import com.damlotec.ecommerce.exceptions.ProductNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -50,20 +50,20 @@ public class ProductService implements IproductService {
             var product = productsInDb.get(i);
             var purchaseRequest = purchaseRequests.get(i);
             if (product.getAvailableQuantity() < purchaseRequest.quantity())
-                throw new InsufficientQuanityException(format("Insufficient quantity for product %d", product.getId()));
+                    throw new InsufficientQuantityException(format("Insufficient quantity for product %d", product.getId()));
 
-            double newAvailableQuantity = product.getAvailableQuantity() - purchaseRequest.quantity();
-            product.setAvailableQuantity(newAvailableQuantity);
-            productRepository.save(product);
-            productPurchaseResponses.add(mapper.toProductPurchaseResponse(product, purchaseRequest.quantity()));
+                double newAvailableQuantity = product.getAvailableQuantity() - purchaseRequest.quantity();
+                product.setAvailableQuantity(newAvailableQuantity);
+                productRepository.save(product);
+                productPurchaseResponses.add(mapper.toProductPurchaseResponse(product, purchaseRequest.quantity()));
+            }
+
+            return productPurchaseResponses;
+
         }
 
-        return productPurchaseResponses;
-
-    }
-
-    @Override
-    public ProductResponse getProduct(Integer id) {
+        @Override
+        public ProductResponse getProduct(Integer id) {
         log.info("Getting product with id {}", id);
         return findProductById(id);
     }
@@ -95,7 +95,7 @@ public class ProductService implements IproductService {
     private ProductResponse findProductById(int id) {
         return productRepository.findById(id)
                 .map(mapper::toResponse)
-                .orElseThrow(() -> new ProuctNotFoundException(format("Product with id %d not found", id)));
+                .orElseThrow(() -> new ProductNotFoundException(format("Product with id %d not found", id)));
     }
 
 }

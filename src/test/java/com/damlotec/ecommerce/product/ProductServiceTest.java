@@ -1,9 +1,9 @@
 package com.damlotec.ecommerce.product;
 
 import com.damlotec.ecommerce.exceptions.CategoryNotFoundException;
-import com.damlotec.ecommerce.exceptions.InsufficientQuanityException;
+import com.damlotec.ecommerce.exceptions.InsufficientQuantityException;
 import com.damlotec.ecommerce.exceptions.ProductPurchaseException;
-import com.damlotec.ecommerce.exceptions.ProuctNotFoundException;
+import com.damlotec.ecommerce.exceptions.ProductNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -151,7 +151,7 @@ class ProductServiceTest {
         //when
         //then
         assertThatThrownBy(() -> underTest.ProductsPurchase(productsRequestIds))
-                .isInstanceOf(InsufficientQuanityException.class)
+                .isInstanceOf(InsufficientQuantityException.class)
                 .hasMessage(format("Insufficient quantity for product %d", product1.getId()));
     }
 
@@ -179,7 +179,7 @@ class ProductServiceTest {
         when(productRepository.findById(id)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> underTest.getProduct(id))
-                .isInstanceOf(ProuctNotFoundException.class)
+                .isInstanceOf(ProductNotFoundException.class)
                 .hasMessage(format("Product with id %d not found", id));
     }
 

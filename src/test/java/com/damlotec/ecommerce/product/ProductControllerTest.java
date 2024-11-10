@@ -1,6 +1,6 @@
 package com.damlotec.ecommerce.product;
 
-import com.damlotec.ecommerce.exceptions.ProuctNotFoundException;
+import com.damlotec.ecommerce.exceptions.ProductNotFoundException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
@@ -100,7 +100,7 @@ class ProductControllerTest {
     @Test
     void shouldNotFoundProductById() throws Exception {
         Integer id = 9;
-        when(productService.getProduct(any())).thenThrow(ProuctNotFoundException.class);
+        when(productService.getProduct(any())).thenThrow(ProductNotFoundException.class);
         mockMvc.perform(get("/api/v1/products/{id}", id))
                 .andExpect(status().isNotFound());
     }
