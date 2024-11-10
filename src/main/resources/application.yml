@@ -3,9 +3,3 @@ spring:
     import: optional:configserver:${CONFIG_SERVER_URL:http://localhost:8888}
   application:
     name: order-service
-
-application:
-  config:
-    customer-url: http://localhost:8081/api/v1/customers
-    product-url: http://localhost:8082/api/v1/products
-    payment-url: http://localhost:8084/api/v1/payments

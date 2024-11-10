@@ -1,10 +1,12 @@
 package com.damlotec.ecommerce.payment;
 
+import jakarta.validation.Valid;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 
-@FeignClient(name = "payment-service", url = "http://localhost:8084/api/v1/payments")
+@FeignClient(name = "PAYMENT-SERVICE")
 public interface PaymentClient {
-    @PostMapping
-    Integer pay(PaymentRequest paymentRequest);
+    @PostMapping("/api/v1/payments")
+    Integer pay(@RequestBody @Valid PaymentRequest paymentRequest);
 }

@@ -8,6 +8,7 @@ import lombok.*;
 @Getter
 @Setter
 @Builder
+@ToString
 public class CustomerResponse {
     private String id;
     private String firstName;

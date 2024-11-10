@@ -41,11 +41,13 @@ public class OrderService implements IorderService {
         // check if customer exists --> customer-ms
         CustomerResponse customerResponse = customerClient.getCustomerById(orderRequest.customerId())
                 .orElseThrow(() -> new BusinessException(String.format("Cannot create Order:: No customer exist wit this ID %s", orderRequest.customerId())));
+        log.info(" ----> customerResponse : {}", customerResponse);
         //check if products purchase exist and are available quantity --> product-ms
         //productClient.productsPurchase(orderRequest.products()); // --> with OpenFeign
         List<ProductPurchaseResponse> purchaseProducts = productClient.getPurchaseProducts(orderRequest.products());// --> with RestTemplate
-
+        log.info(" ----> purchaseProducts : {}", purchaseProducts);
         Order order = orderRepository.save(mapper.toOrder(orderRequest));
+        log.info(" ----> order : {}", order);
 
         //save orderItems
         for (ProductPurchaseRequest productPurchaseRequest : orderRequest.products()) {
@@ -58,7 +60,7 @@ public class OrderService implements IorderService {
             );
         }
 
-        //start the payment process --> payment-ms
+//        start the payment process --> payment-ms
         paymentClient.pay(
                 new PaymentRequest(
                         orderRequest.amount(),

@@ -23,7 +23,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(BusinessException.class)
     public ProblemDetail handler(BusinessException ex) {
-        return ProblemDetail.forStatusAndDetail(BAD_REQUEST, ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(NOT_FOUND, ex.getMessage());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
