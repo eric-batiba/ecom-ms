@@ -1,0 +1,17 @@
+spring:
+  application:
+    name: order-service-test
+  main:
+    banner-mode: "off"
+  cloud:
+    discovery:
+      enabled: false
+    config:
+      enabled: false
+
+  kafka:
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.type.mapping: paymentNotification:com.damlotec.ecommerce.kafka.PaymentNotification
