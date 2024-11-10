@@ -31,7 +31,7 @@ public class PaymentProducer {
             if (exception != null) {
                 log.error("Error sending payment notification to kafka :: {}", exception.getMessage());
             } else {
-                log.info(String.format("Payment notification message : %s - sent to kafka successfully with offset : %d", message, result.getRecordMetadata().offset()));
+                log.info("Payment notification message : {} - sent to kafka successfully with offset : {}", message, result.getRecordMetadata().offset());
             }
         });
     }
