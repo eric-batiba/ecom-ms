@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Order Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            color: #333;
+            background-color: #f4f4f9;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h2 {
+            color: #4CAF50;
+        }
+        .content {
+            margin: 20px 0;
+        }
+        .footer {
+            font-size: 0.9em;
+            color: #888;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #f9f9f9;
+            border-radius: 5px;
+        }
+        strong {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #4CAF50;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2>Order Confirmation</h2>
+    <p>Dear <span th:text="${customerName}"></span>,</p>
+
+    <div class="content">
+        <p>Thank you for your order! Here are the details:</p>
+        <ul>
+            <li><strong>Order Reference:</strong> <span th:text="${orderRef}"></span></li>
+            <li><strong>Order Date:</strong> <span th:text="${orderDate}"></span></li>
+            <li><strong>Total Amount:</strong> $<span th:text="${totalAmount}"></span></li>
+            <li><strong>Shipping Address:</strong> <span th:text="${shippingAddress}"></span></li>
+        </ul>
+
+        <h3>Order Items</h3>
+        <table>
+            <thead>
+            <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Price</th>
+                <th>Total</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="product : ${products}">
+                <td th:text="${product.name}">Product Name</td>
+                <td th:text="${product.quantity}">1</td>
+                <td th:text="${product.price}">$10.00</td>
+                <td th:text="${product.totalPrice}">$10.00</td>
+            </tr>
+            </tbody>
+        </table>
+        <p>We will notify you once your order has been shipped.</p>
+    </div>
+
+    <p>If you have any questions, feel free to contact us at
+        <a href="mailto:contact@btb.com" style="color: #4CAF50; text-decoration: none;">contact@btb.com</a>.
+    </p>
+
+    <div class="footer">
+        <p>Best regards,<br>BTB E-commerce Team</p>
+    </div>
+</div>
+</body>
+</html>
