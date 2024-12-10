@@ -1,4 +1,4 @@
-package com.damlotec.notification_service.notification;
+package com.damlotec.ecommerce.notification;
 
 public enum NotificationType {
     ORDER_CONFIRMATION,

@@ -1,6 +1,6 @@
-package com.damlotec.notification_service.kafka.order;
+package com.damlotec.ecommerce.kafka.order;
 
-import com.damlotec.notification_service.kafka.payment.PaymentMethod;
+import com.damlotec.ecommerce.kafka.payment.PaymentMethod;
 
 import java.math.BigDecimal;
 import java.util.List;

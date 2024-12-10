@@ -1,4 +1,4 @@
-package com.damlotec.notification_service.email;
+package com.damlotec.ecommerce.email;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;

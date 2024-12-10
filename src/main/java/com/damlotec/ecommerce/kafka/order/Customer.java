@@ -1,4 +1,4 @@
-package com.damlotec.notification_service.kafka.order;
+package com.damlotec.ecommerce.kafka.order;
 
 public record Customer(
          String id,

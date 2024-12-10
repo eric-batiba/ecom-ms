@@ -1,4 +1,4 @@
-package com.damlotec.notification_service;
+package com.damlotec.ecommerce;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

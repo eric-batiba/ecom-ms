@@ -1,4 +1,4 @@
-package com.damlotec.notification_service;
+package com.damlotec.ecommerce;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;

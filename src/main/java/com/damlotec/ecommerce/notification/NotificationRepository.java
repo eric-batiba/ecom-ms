@@ -1,4 +1,4 @@
-package com.damlotec.notification_service.notification;
+package com.damlotec.ecommerce.notification;
 
 import org.springframework.data.mongodb.repository.MongoRepository;
 

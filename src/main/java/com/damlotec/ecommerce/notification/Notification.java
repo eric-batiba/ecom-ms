@@ -1,7 +1,7 @@
-package com.damlotec.notification_service.notification;
+package com.damlotec.ecommerce.notification;
 
-import com.damlotec.notification_service.kafka.order.OrderConfirmation;
-import com.damlotec.notification_service.kafka.payment.PaymentConfirmation;
+import com.damlotec.ecommerce.kafka.order.OrderConfirmation;
+import com.damlotec.ecommerce.kafka.payment.PaymentConfirmation;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 

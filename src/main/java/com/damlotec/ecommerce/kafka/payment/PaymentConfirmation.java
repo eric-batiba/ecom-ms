@@ -1,4 +1,4 @@
-package com.damlotec.notification_service.kafka.payment;
+package com.damlotec.ecommerce.kafka.payment;
 
 import java.math.BigDecimal;
 
