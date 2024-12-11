@@ -13,6 +13,7 @@ import java.util.concurrent.CompletableFuture;
 
 import static com.damlotec.ecommerce.config.PaymentTopicConfig.PAYMENT_TOPIC;
 
+// This Java code implements a Spring Boot service that sends payment notifications to a Kafka topic. It utilizes a KafkaTemplate for asynchronous message sending and includes logging for successful and unsuccessful attempts.
 @Service
 @RequiredArgsConstructor
 @Slf4j
