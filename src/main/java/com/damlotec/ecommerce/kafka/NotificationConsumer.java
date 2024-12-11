@@ -33,7 +33,7 @@ public class NotificationConsumer {
     private final EmailService emailService;
     private final ObjectMapper objectMapper;
 
-    private static final Set<String> INVALID_CUSTOMER_NAMES = Set.of("btb", "mp");
+    private static final Set<String> INVALID_CUSTOMER_NAMES = Set.of("nopbtb", "mp");
 
 
     @RetryableTopic(attempts = "4")
