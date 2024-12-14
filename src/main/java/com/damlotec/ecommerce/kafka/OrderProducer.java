@@ -30,7 +30,7 @@ public class OrderProducer {
             if (exception != null) {
                 log.error("Error sending order confirmation to kafka : {}", exception.getMessage());
             } else {
-                log.info(String.format("Order confirmation message : %s sent to kafka successfully with offset : %d", message, result.getRecordMetadata().offset()));
+                log.info("Order confirmation message : {} sent to kafka successfully with offset : {}", message, result.getRecordMetadata().offset());
             }
         });
 
