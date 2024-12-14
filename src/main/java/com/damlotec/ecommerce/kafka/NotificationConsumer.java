@@ -20,10 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Stream;
 
 @Service
 @Slf4j
@@ -33,16 +31,17 @@ public class NotificationConsumer {
     private final EmailService emailService;
     private final ObjectMapper objectMapper;
 
-    private static final Set<String> INVALID_CUSTOMER_NAMES = Set.of("nopbtb", "mp");
+    private static final Set<String> INVALID_CUSTOMER_NAMES = Set.of("OM", "MTN", "PAYPAL");
 
 
-    @RetryableTopic(attempts = "4")
+    @RetryableTopic
     @KafkaListener(topics = "payment-topic")
-    public void consumePayment(PaymentConfirmation paymentConfirmation,@Header(KafkaHeaders.RECEIVED_TOPIC) String topic,@Header(KafkaHeaders.OFFSET) Long offset) throws JsonProcessingException {
+    public void consumePayment(PaymentConfirmation paymentConfirmation, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic, @Header(KafkaHeaders.OFFSET) Long offset) throws JsonProcessingException {
 
         try {
             log.info("Received: {} from {} offset {}", objectMapper.writeValueAsString(paymentConfirmation), topic, offset);
-            if (INVALID_CUSTOMER_NAMES.contains(paymentConfirmation.customerFirstName())) throw new IllegalArgumentException("Customer first name not present");
+            if (!INVALID_CUSTOMER_NAMES.contains(paymentConfirmation.customerFirstName()))
+                throw new IllegalArgumentException("Customer first name not present");
             notificationRepository.save(
                     Notification.builder()
                             .notificationType(NotificationType.PAYMENT_CONFIRMATION)
@@ -59,13 +58,13 @@ public class NotificationConsumer {
                     variables,
                     TemplateType.PAYMENT_CONFIRMATION
             );
-        }catch (Exception e) {
+        } catch (Exception e) {
             log.error("Error processing payment confirmation [topic: {}]: {}", topic, e.getMessage(), e);
             throw e;
         }
     }
 
-    @RetryableTopic(attempts = "4")
+    @RetryableTopic
     @KafkaListener(topics = "order-topic")
     public void consumeOrder(OrderConfirmation orderConfirmation,
                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
@@ -73,7 +72,8 @@ public class NotificationConsumer {
         try {
             log.info("Received : {} from {} offset {}", objectMapper.writeValueAsString(orderConfirmation), topic, offset);
 
-            if (INVALID_CUSTOMER_NAMES.contains(orderConfirmation.customer().firstName())) throw new IllegalArgumentException("Customer first name not present");
+            if (INVALID_CUSTOMER_NAMES.contains(orderConfirmation.customer().firstName()))
+                throw new IllegalArgumentException("Customer first name not present");
 
             notificationRepository.save(
                     Notification.builder()
@@ -99,15 +99,11 @@ public class NotificationConsumer {
         }
     }
 
+
     @DltHandler
-    public void listenDLTPaymentConfirmation(PaymentConfirmation paymentConfirmation) {
-        log.info("Received DLT Payment Confirmation: {}", paymentConfirmation);
+    public void listenDLT(@Header(KafkaHeaders.RECEIVED_TOPIC) String topic, @Header(KafkaHeaders.OFFSET) Long offset) {
+        log.info("Received DLT from {} offset {}", topic, offset);
 
     }
 
-    @DltHandler
-    public void listenDLTOrderConfirmation(OrderConfirmation orderConfirmation) {
-        log.info("Received DLT OrderConfirmation Confirmation: {}", orderConfirmation);
-
-    }
 }
