@@ -1,0 +1,10 @@
+CREATE SEQUENCE IF NOT EXISTS outbox_seq_id START WITH 1 INCREMENT BY 1;
+
+CREATE TABLE IF NOT EXISTS outbox (
+    id INTEGER NOT NULL DEFAULT nextval('outbox_seq_id') PRIMARY KEY,
+    aggregate_id VARCHAR(255) NOT NULL,
+    message_type VARCHAR(255) NOT NULL,
+    payload TEXT NOT NULL,
+    status BOOLEAN NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
