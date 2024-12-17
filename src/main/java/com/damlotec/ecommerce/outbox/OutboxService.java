@@ -1,6 +1,8 @@
 package com.damlotec.ecommerce.outbox;
 
+import com.damlotec.ecommerce.kafka.OrderConfirmation;
 import com.damlotec.ecommerce.kafka.OrderProducer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.EnableScheduling;
@@ -16,15 +18,17 @@ import java.util.List;
 public class OutboxService {
     private final OutboxRepository outboxRepository;
     private final OrderProducer orderProducer;
+    private final ObjectMapper objectMapper;
 
-    @Scheduled(fixedRate = 6000)
+    @Scheduled(fixedRate = 120000)
     public void pollOutboxMessagesAndPublish() {
         log.info("Polling outbox messages");
         List<Outbox> unprocessedRecord = outboxRepository.findByStatusFalse();
         log.info("Unprocessed record count: {}", unprocessedRecord.size());
         unprocessedRecord.forEach(outbox -> {
             try {
-                orderProducer.sendOrderConfirmation(outbox.getPayload());
+                OrderConfirmation orderConfirmation = objectMapper.readValue(outbox.getPayload(), OrderConfirmation.class);
+                orderProducer.sendOrderConfirmation(orderConfirmation);
                 outbox.setStatus(Boolean.TRUE);
                 outboxRepository.save(outbox);
             } catch (Exception e) {

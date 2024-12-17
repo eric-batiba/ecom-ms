@@ -17,15 +17,15 @@ import static org.springframework.kafka.support.KafkaHeaders.TOPIC;
 @RequiredArgsConstructor
 @Slf4j
 public class OrderProducer {
-    private final KafkaTemplate<String, String> kafkaTemplate;
+    private final KafkaTemplate<String, OrderConfirmation> kafkaTemplate;
 
-    public void sendOrderConfirmation(String payload) {
+    public void sendOrderConfirmation(OrderConfirmation orderConfirmation) {
         log.info("Order confirmation sent to kafka");
-        Message<String> message = MessageBuilder
-                .withPayload(payload)
+        Message<OrderConfirmation> message = MessageBuilder
+                .withPayload(orderConfirmation)
                 .setHeader(TOPIC, ORDER_TOPIC)
                 .build();
-        CompletableFuture<SendResult<String, String>> completableFuture = kafkaTemplate.send(message);
+        CompletableFuture<SendResult<String, OrderConfirmation>> completableFuture = kafkaTemplate.send(message);
         completableFuture.whenComplete((result, exception) -> {
             if (exception != null) {
                 log.error("Error sending order confirmation to kafka : {}", exception.getMessage());
