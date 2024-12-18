@@ -23,6 +23,6 @@ public class Payment extends Auditable{
     private PaymentMethod paymentMethod;
     @Column(unique = true, nullable = false)
     private Integer orderId;
-    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private PaymentStatus status;
 }

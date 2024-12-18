@@ -1,5 +1,5 @@
 ALTER TABLE payment ADD CONSTRAINT unique_order_id UNIQUE (order_id);
-ALTER TABLE payment ADD COLUMN status VARCHAR(255) NOT NULL;
+ALTER TABLE payment ADD COLUMN status VARCHAR(255);
 
 
 

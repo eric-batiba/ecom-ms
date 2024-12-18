@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Optional;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -20,8 +22,11 @@ public class PaymentService {
     @Transactional
     public Integer createPayment(PaymentRequest request) {
         log.info("Creating payment for order {}", request);
-        paymentRepository.findByOrderId(request.orderId())
-                .orElseThrow(() -> new PaymentAlreadyExist(String.format("Payment already done with orderId: %s", request.orderId())));
+        Optional<Payment> existingPayment = paymentRepository.findByOrderId(request.orderId());
+        if (existingPayment.isPresent()) {
+            log.info("Paiement déjà effectué pour orderId: {}", request.orderId());
+            throw new PaymentAlreadyExist(String.format("Payment already done with orderId: %s", request.orderId()));
+        }
 
         // mock payment call (ex: API call)
         boolean paymentSuccess = simulatePaymentProcessing(request);
