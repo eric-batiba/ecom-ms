@@ -40,8 +40,8 @@ public class NotificationConsumer {
 
         try {
             log.info("Received: {} from {} offset {}", objectMapper.writeValueAsString(paymentConfirmation), topic, offset);
-            if (!INVALID_CUSTOMER_NAMES.contains(paymentConfirmation.customerFirstName()))
-                throw new IllegalArgumentException("Customer first name not present");
+//            if (!INVALID_CUSTOMER_NAMES.contains(paymentConfirmation.customerFirstName()))
+//                throw new IllegalArgumentException("Customer first name not present");
             notificationRepository.save(
                     Notification.builder()
                             .notificationType(NotificationType.PAYMENT_CONFIRMATION)
