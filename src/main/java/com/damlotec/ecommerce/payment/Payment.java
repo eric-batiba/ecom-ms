@@ -24,7 +24,5 @@ public class Payment extends Auditable{
     @Column(unique = true, nullable = false)
     private Integer orderId;
     @Column(nullable = false)
-    private String status;
-    @Column(nullable = false)
-    private Boolean successful = Boolean.FALSE;
+    private PaymentStatus status;
 }
