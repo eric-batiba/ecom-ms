@@ -1,36 +1,42 @@
 package com.damlotec.ecommerce.payment;
 
-import com.damlotec.ecommerce.kafka.PaymentNotification;
-import com.damlotec.ecommerce.kafka.PaymentProducer;
+import com.damlotec.ecommerce.exception.PaymentAlreadyExist;
+import com.damlotec.ecommerce.exception.PaymentFailException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
 @Slf4j
 public class PaymentService {
+    public static final boolean BOOLEAN = true;
     private final PaymentRepository paymentRepository;
-    private final PaymentProducer paymentProducer;
     private final PaymentMapper mapper;
+    private final OutboxRepository outboxRepository;
+    private final OutboxMapper outboxMapper;
 
+    @Transactional
     public Integer createPayment(PaymentRequest request) {
         log.info("Creating payment for order {}", request);
-        Payment payment = paymentRepository.save(mapper.toPayment(request));
+        paymentRepository.findByOrderId(request.orderId())
+                .orElseThrow(() -> new PaymentAlreadyExist(String.format("Payment already done with orderId: %s", request.orderId())));
 
-        // send payment confirmation to kafka
-        paymentProducer.sendPaymentNotification(
-                new PaymentNotification(
-                        request.totalAmount(),
-                        request.paymentMethod(),
-                        request.orderId(),
-                        request.orderRef(),
-                        request.customer().firstName(),
-                        request.customer().lastName(),
-                        request.customer().email()
-                )
-        );
-
+        // mock payment call (ex: API call)
+        boolean paymentSuccess = simulatePaymentProcessing(request);
+        if (!paymentSuccess) throw new PaymentFailException("Processing Payment failed : it's return false");
+        Payment mapperPayment = mapper.toPayment(request);
+        Payment payment = paymentRepository.save(mapperPayment);
+        Outbox outbox = outboxMapper.toOutbox(request);
+        outboxRepository.save(outbox);
+        log.info("Payment successfully process with orderId: {}", request.orderId());
         return payment.getId();
+    }
+
+    private boolean simulatePaymentProcessing(PaymentRequest request) {
+        // mock successful payment call (implement integration by gateway payment)
+        log.info("Simulating payment process with orderId: {}", request.orderId());
+        return BOOLEAN;
     }
 }

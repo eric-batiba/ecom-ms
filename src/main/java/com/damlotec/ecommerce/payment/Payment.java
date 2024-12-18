@@ -16,8 +16,15 @@ public class Payment extends Auditable{
     @SequenceGenerator(name = "payment_seq", sequenceName = "payment_id_seq", allocationSize = 1)
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator ="payment_seq")
     private Integer id;
+    @Column(nullable = false)
     private BigDecimal totalAmount;
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private PaymentMethod paymentMethod;
+    @Column(unique = true, nullable = false)
     private Integer orderId;
+    @Column(nullable = false)
+    private String status;
+    @Column(nullable = false)
+    private Boolean successful = Boolean.FALSE;
 }

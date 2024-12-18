@@ -9,6 +9,8 @@ public class PaymentMapper {
                 .totalAmount(request.totalAmount())
                 .paymentMethod(request.paymentMethod())
                 .orderId(request.orderId())
+                .status("SUCCESS")
+                .successful(Boolean.TRUE)
                 .build();
     }
 }
