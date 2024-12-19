@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({PaymentFailException.class})
     public ProblemDetail handlerException(Exception ex) {
-        return ProblemDetail.forStatusAndDetail(PAYMENT_REQUIRED, ex.getMessage());
+        return ProblemDetail.forStatusAndDetail(BAD_REQUEST, ex.getMessage());
     }
 
 
