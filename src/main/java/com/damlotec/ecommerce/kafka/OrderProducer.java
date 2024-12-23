@@ -1,5 +1,6 @@
 package com.damlotec.ecommerce.kafka;
 
+import com.avro.OrderConfirmation;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;

@@ -1,10 +1,10 @@
 package com.damlotec.ecommerce.outbox;
-
 import com.damlotec.ecommerce.kafka.OrderConfirmation;
 import com.damlotec.ecommerce.kafka.OrderProducer;
 import com.damlotec.ecommerce.payment.PaymentClient;
 import com.damlotec.ecommerce.payment.PaymentRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -35,14 +35,15 @@ public class OutboxService {
         log.info("Unprocessed record count: {}", unprocessedRecords.size());
         unprocessedRecords.parallelStream().forEach(outbox -> {
             try {
-                OrderConfirmation orderConfirmation = objectMapper.readValue(outbox.getPayload(), OrderConfirmation.class);
+                objectMapper.readValue(outbox.getPayload(), com.avro.OrderConfirmation.class)
+                OrderConfirmation paymentRequest = objectMapper.readValue(outbox.getPayload(), OrderConfirmation.class);
 
-                processPayment(orderConfirmation);
+                processPayment(paymentRequest);
 
                 orderProducer.sendOrderConfirmation(orderConfirmation);
                 outbox.setStatus(Boolean.TRUE);
                 outboxRepository.save(outbox);
-                log.info(" Successful processing outbox message for orderId : {}", orderConfirmation.orderId());
+                log.info(" Successful processing outbox message for orderId : {}", orderConfirmation.getOrderId());
 
             } catch (FeignException fe) {
                 log.error("Payment failed for orderId {}: {}", outbox.getId(), fe.getMessage());
@@ -53,20 +54,20 @@ public class OutboxService {
         });
     }
 
-    private void processPayment(OrderConfirmation orderConfirmation) {
+    private void processPayment(OrderConfirmation paymentRequest) {
         try {
-            PaymentRequest paymentRequest = new PaymentRequest(
-                    orderConfirmation.totalAmount(),
-                    orderConfirmation.paymentMethod(),
-                    orderConfirmation.orderId(),
-                    orderConfirmation.reference(),
-                    orderConfirmation.customer()
+            PaymentRequest request = new PaymentRequest(
+                   paymentRequest.totalAmount(),
+                   paymentRequest.paymentMethod(),
+                   paymentRequest.orderId(),
+                   paymentRequest.reference(),
+                   paymentRequest.customer()
             );
 
             // Call Feign Payment Service
-            paymentClient.pay(paymentRequest);
+            paymentClient.pay(request);
 
-            log.info("Payment successfully process for orderId : {}", orderConfirmation.orderId());
+            log.info("Payment successfully process for orderId : {}", paymentRequest.orderId());
         } catch (FeignException fe) {
             log.error(" Error occur during call payment service : {}", fe.getMessage());
             throw fe; // Send back exception for next time call
