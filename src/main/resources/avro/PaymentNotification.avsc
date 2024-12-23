@@ -1,0 +1,32 @@
+{
+  "type": "record",
+  "name": "PaymentNotification",
+  "namespace": "com.avro",
+  "fields": [
+    {"name": "totalAmount", "type": "double"},
+    {
+      "name": "paymentMethod",
+      "type": "string"
+    },
+    {
+      "name": "orderId",
+      "type": "int"
+    },
+    {
+      "name": "orderRef",
+      "type": "string"
+    },
+    {
+      "name": "customerFirstName",
+      "type": "string"
+    },
+    {
+      "name": "customerLastName",
+      "type": "string"
+    },
+    {
+      "name": "customerEmail",
+      "type": "string"
+    }
+  ]
+}

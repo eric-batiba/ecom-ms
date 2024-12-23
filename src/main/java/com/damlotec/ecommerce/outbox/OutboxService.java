@@ -1,6 +1,7 @@
 package com.damlotec.ecommerce.outbox;
 
-import com.damlotec.ecommerce.kafka.PaymentNotification;
+import com.avro.PaymentNotification;
+import com.damlotec.ecommerce.kafka.PaymentNotificationWrapper;
 import com.damlotec.ecommerce.kafka.PaymentProducer;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -33,7 +34,8 @@ public class OutboxService {
         unprocessedRecord.parallelStream().forEach(outbox -> {
             try {
                 objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                PaymentNotification paymentNotification = objectMapper.readValue(outbox.getPayload(), PaymentNotification.class);
+                PaymentNotification paymentNotification = objectMapper.readValue(outbox.getPayload(), PaymentNotificationWrapper.class);
+                log.info("Payment notification: {}", paymentNotification);
                 paymentProducer.sendPaymentNotification(paymentNotification);
                 outbox.setStatus(Boolean.TRUE);
                 outboxRepository.save(outbox);

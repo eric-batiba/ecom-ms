@@ -1,5 +1,6 @@
 package com.damlotec.ecommerce.kafka;
 
+import com.avro.PaymentNotification;
 import com.damlotec.ecommerce.payment.PaymentMethod;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
@@ -17,11 +18,11 @@ public class PaymentNotificationDeserializer extends JsonDeserializer<PaymentNot
         var node = (JsonNode) mapper.readTree(parser);
 
 //        extract and process fields from the JSON node
-        BigDecimal totalAmount = node.has("totalAmount") && node.get("totalAmount").isNumber()
-                ? node.get("totalAmount").decimalValue()
-                : BigDecimal.ZERO;
-        PaymentMethod paymentMethod = node.has("paymentMethod") && node.get("paymentMethod").isTextual()
-                ? PaymentMethod.valueOf(node.get("paymentMethod").asText())
+        double totalAmount = node.has("totalAmount") && node.get("totalAmount").isDouble()
+                ? node.get("totalAmount").asDouble()
+                : 0.0;
+        String paymentMethod = node.has("paymentMethod") && node.get("paymentMethod").isTextual()
+                ? node.get("paymentMethod").asText()
                 : null;
 
         Integer orderId = node.has("orderId") && node.get("orderId").isInt()
