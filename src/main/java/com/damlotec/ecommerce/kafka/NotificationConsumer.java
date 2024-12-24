@@ -11,6 +11,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.DltHandler;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.kafka.annotation.RetryableTopic;
@@ -36,25 +37,25 @@ public class NotificationConsumer {
 
     @RetryableTopic
     @KafkaListener(topics = "payment-topic")
-    public void consumePayment(PaymentNotification paymentConfirmation, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic, @Header(KafkaHeaders.OFFSET) Long offset) throws JsonProcessingException {
-
+    public void consumePayment(ConsumerRecord<String, PaymentNotification> paymentConfirmation, @Header(KafkaHeaders.RECEIVED_TOPIC) String topic, @Header(KafkaHeaders.OFFSET) Long offset) throws JsonProcessingException {
         try {
-            log.info("Received: {} from {} offset {}", objectMapper.writeValueAsString(paymentConfirmation), topic, offset);
-            if (!INVALID_CUSTOMER_NAMES.contains(paymentConfirmation.getCustomerFirstName().toString()))
+            log.info("Key: {}, Value: {}", paymentConfirmation.key(), paymentConfirmation.value());
+            log.info("Received: {} from {} offset {}", objectMapper.writeValueAsString(paymentConfirmation.value()), topic, offset);
+            if (!INVALID_CUSTOMER_NAMES.contains(paymentConfirmation.value().getCustomerFirstName().toString()))
                 throw new IllegalArgumentException("Customer first name not present");
             notificationRepository.save(
                     Notification.builder()
                             .notificationType(NotificationType.PAYMENT_CONFIRMATION)
-                            .paymentConfirmation(paymentConfirmation)
+                            .paymentConfirmation(paymentConfirmation.value())
                             .notificationDate(LocalDateTime.now())
                             .build()
             );
             Map<String, Object> variables = new HashMap<>();
-            variables.put("customerName", paymentConfirmation.getCustomerFirstName() + " " + paymentConfirmation.getCustomerLastName());
-            variables.put("totalAmount", paymentConfirmation.getTotalAmount());
-            variables.put("orderRef", paymentConfirmation.getOrderRef());
+            variables.put("customerName", paymentConfirmation.value().getCustomerFirstName() + " " + paymentConfirmation.value().getCustomerLastName());
+            variables.put("totalAmount", paymentConfirmation.value().getTotalAmount());
+            variables.put("orderRef", paymentConfirmation.value().getOrderRef());
             emailService.sendEmail(
-                    paymentConfirmation.getCustomerEmail().toString(),
+                    paymentConfirmation.value().getCustomerEmail().toString(),
                     variables,
                     TemplateType.PAYMENT_CONFIRMATION
             );
@@ -66,30 +67,31 @@ public class NotificationConsumer {
 
     @RetryableTopic
     @KafkaListener(topics = "order-topic")
-    public void consumeOrder(OrderConfirmation orderConfirmation,
+    public void consumeOrder(ConsumerRecord<String, OrderConfirmation> orderConfirmation,
                              @Header(KafkaHeaders.RECEIVED_TOPIC) String topic,
                              @Header(KafkaHeaders.OFFSET) Long offset) {
         try {
+            log.info("Key: {} value: {}", orderConfirmation.key(), orderConfirmation.value());
             log.info("Received : {} from {} offset {}", objectMapper.writeValueAsString(orderConfirmation), topic, offset);
 
-            if (INVALID_CUSTOMER_NAMES.contains(orderConfirmation.getCustomer().getFirstName().toString()))
+            if (INVALID_CUSTOMER_NAMES.contains(orderConfirmation.value().getCustomer().getFirstName().toString()))
                 throw new IllegalArgumentException("Customer first name not present");
             notificationRepository.save(
                     Notification.builder()
                             .notificationType(NotificationType.ORDER_CONFIRMATION)
-                            .orderConfirmation(orderConfirmation)
+                            .orderConfirmation(orderConfirmation.value())
                             .notificationDate(LocalDateTime.now())
                             .build()
             );
             Map<String, Object> variables = new HashMap<>();
-            variables.put("customerName", orderConfirmation.getCustomer().getFirstName() + " " + orderConfirmation.getCustomer().getLastName());
-            variables.put("totalAmount", orderConfirmation.getTotalAmount());
-            variables.put("orderRef", orderConfirmation.getReference());
+            variables.put("customerName", orderConfirmation.value().getCustomer().getFirstName() + " " + orderConfirmation.value().getCustomer().getLastName());
+            variables.put("totalAmount", orderConfirmation.value().getTotalAmount());
+            variables.put("orderRef", orderConfirmation.value().getReference());
             variables.put("orderDate", LocalDateTime.now());
-            variables.put("shippingAddress", orderConfirmation.getCustomer().getAddress());
-            variables.put("products", orderConfirmation.getProducts());
+            variables.put("shippingAddress", orderConfirmation.value().getCustomer().getAddress());
+            variables.put("products", orderConfirmation.value().getProducts());
             emailService.sendEmail(
-                    orderConfirmation.getCustomer().getEmail().toString(),
+                    orderConfirmation.value().getCustomer().getEmail().toString(),
                     variables,
                     TemplateType.ORDER_CONFIRMATION
             );
