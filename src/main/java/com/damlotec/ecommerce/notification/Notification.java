@@ -1,7 +1,7 @@
 package com.damlotec.ecommerce.notification;
 
-import com.damlotec.ecommerce.kafka.order.OrderConfirmation;
-import com.damlotec.ecommerce.kafka.payment.PaymentConfirmation;
+import com.avro.OrderConfirmation;
+import com.avro.PaymentNotification;
 import lombok.*;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -18,5 +18,5 @@ public class Notification {
     private NotificationType notificationType;
     private LocalDateTime notificationDate;
     private OrderConfirmation orderConfirmation;
-    private PaymentConfirmation paymentConfirmation;
+    private PaymentNotification paymentConfirmation;
 }
