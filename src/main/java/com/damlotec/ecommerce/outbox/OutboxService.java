@@ -35,7 +35,7 @@ public class OutboxService {
         log.info("Unprocessed record count: {}", unprocessedRecords.size());
         unprocessedRecords.parallelStream().forEach(outbox -> {
             try {
-                objectMapper.readValue(outbox.getPayload(), com.avro.OrderConfirmation.class)
+                com.avro.OrderConfirmation orderConfirmation = objectMapper.readValue(outbox.getPayload(), com.avro.OrderConfirmation.class);
                 OrderConfirmation paymentRequest = objectMapper.readValue(outbox.getPayload(), OrderConfirmation.class);
 
                 processPayment(paymentRequest);
