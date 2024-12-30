@@ -18,5 +18,5 @@ public class Notification {
     private NotificationType notificationType;
     private LocalDateTime notificationDate;
     private OrderConfirmation orderConfirmation;
-    private PaymentNotification paymentConfirmation;
+    private PaymentNotification paymentNotification;
 }
