@@ -1,10 +1,10 @@
 package com.damlotec.ecommerce.outbox;
-import com.damlotec.ecommerce.kafka.OrderConfirmation;
+
 import com.damlotec.ecommerce.kafka.OrderProducer;
 import com.damlotec.ecommerce.payment.PaymentClient;
+import com.damlotec.ecommerce.payment.PaymentMapper;
 import com.damlotec.ecommerce.payment.PaymentRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
-
 import feign.FeignException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,9 +22,10 @@ public class OutboxService {
     private final OutboxRepository outboxRepository;
     private final OrderProducer orderProducer;
     private final ObjectMapper objectMapper;
+    private final PaymentMapper paymentMapper;
     private final PaymentClient paymentClient;
 
-    @Scheduled(fixedRate = 120000)
+    @Scheduled(fixedRate = 150000)
     public void pollOutboxMessagesAndPublish() {
         log.info("Polling outbox messages");
         List<Outbox> unprocessedRecords = outboxRepository.findByStatusFalse();
@@ -36,13 +37,15 @@ public class OutboxService {
         unprocessedRecords.parallelStream().forEach(outbox -> {
             try {
                 com.avro.OrderConfirmation orderConfirmation = objectMapper.readValue(outbox.getPayload(), com.avro.OrderConfirmation.class);
-                OrderConfirmation paymentRequest = objectMapper.readValue(outbox.getPayload(), OrderConfirmation.class);
+                log.info("OrderConfirmation: {}", orderConfirmation);
 
-                processPayment(paymentRequest);
+                processPayment(orderConfirmation);
 
                 orderProducer.sendOrderConfirmation(orderConfirmation);
                 outbox.setStatus(Boolean.TRUE);
                 outboxRepository.save(outbox);
+                log.info("Outbox sent successfully: {}", outbox);
+
                 log.info(" Successful processing outbox message for orderId : {}", orderConfirmation.getOrderId());
 
             } catch (FeignException fe) {
@@ -54,20 +57,16 @@ public class OutboxService {
         });
     }
 
-    private void processPayment(OrderConfirmation paymentRequest) {
+    private void processPayment(com.avro.OrderConfirmation orderConfirmation) {
         try {
-            PaymentRequest request = new PaymentRequest(
-                   paymentRequest.totalAmount(),
-                   paymentRequest.paymentMethod(),
-                   paymentRequest.orderId(),
-                   paymentRequest.reference(),
-                   paymentRequest.customer()
-            );
+            log.info("OrderConfirmation in processPayment: {}", orderConfirmation);
+            PaymentRequest request = paymentMapper.toPaymentRequest(orderConfirmation);
+            log.info("Payment request in processPayment: {}", request);
 
             // Call Feign Payment Service
             paymentClient.pay(request);
 
-            log.info("Payment successfully process for orderId : {}", paymentRequest.orderId());
+            log.info("Payment successfully process for orderId : {}", orderConfirmation.getOrderId());
         } catch (FeignException fe) {
             log.error(" Error occur during call payment service : {}", fe.getMessage());
             throw fe; // Send back exception for next time call
