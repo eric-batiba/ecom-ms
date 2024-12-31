@@ -30,15 +30,20 @@ public class OutboxService {
             log.info("zero message to precess.");
             return;
         }
+
         log.info("Unprocessed record count: {}", unprocessedRecord.size());
         unprocessedRecord.parallelStream().forEach(outbox -> {
             try {
+                log.info("Processing outbox message: {}", outbox);
                 objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 PaymentNotification paymentNotification = objectMapper.readValue(outbox.getPayload(), PaymentNotificationWrapper.class);
+
                 log.info("Payment notification: {}", paymentNotification);
                 paymentProducer.sendPaymentNotification(paymentNotification);
                 outbox.setStatus(Boolean.TRUE);
                 outboxRepository.save(outbox);
+
+                log.info("Successfully sent out outbox: {}", outbox);
             } catch (Exception e) {
                 log.error("Error sending order confirmation {}", e.getMessage());
             }

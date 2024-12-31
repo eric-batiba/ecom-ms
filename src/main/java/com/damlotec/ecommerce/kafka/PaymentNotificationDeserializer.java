@@ -1,7 +1,6 @@
 package com.damlotec.ecommerce.kafka;
 
 import com.avro.PaymentNotification;
-import com.damlotec.ecommerce.payment.PaymentMethod;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
@@ -9,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 
 public class PaymentNotificationDeserializer extends JsonDeserializer<PaymentNotification> {
     @Override
@@ -29,8 +27,8 @@ public class PaymentNotificationDeserializer extends JsonDeserializer<PaymentNot
                 ? node.get("orderId").asInt()
                 : null;
 
-        String orderRef = node.has("reference") && node.get("reference").isTextual()
-                ? node.get("reference").asText()
+        String orderRef = node.has("orderRef") && node.get("orderRef").isTextual()
+                ? node.get("orderRef").asText()
                 : null;
 
         // Extract nested customer object
