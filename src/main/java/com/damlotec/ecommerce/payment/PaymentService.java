@@ -21,7 +21,7 @@ public class PaymentService {
 
     @Transactional
     public Integer createPayment(PaymentRequest request) {
-        log.info("Creating payment for order {}", request);
+        log.info("Creating payment for order {}", request.toString());
         Optional<Payment> existingPayment = paymentRepository.findByOrderId(request.orderId());
         if (existingPayment.isPresent()) {
             log.info("Paiement déjà effectué pour orderId: {}", request.orderId());
@@ -33,6 +33,7 @@ public class PaymentService {
         if (!paymentSuccess) throw new PaymentFailException("Processing Payment failed : it's return false");
         Payment mapperPayment = mapper.toPayment(request);
         Payment payment = paymentRepository.save(mapperPayment);
+        payment.setStatus(PaymentStatus.SUCCESS);
         Outbox outbox = outboxMapper.toOutbox(request);
         outboxRepository.save(outbox);
         log.info("Payment successfully process with orderId: {}", request.orderId());
